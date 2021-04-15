@@ -1,4 +1,6 @@
 module Trough
+  require 'open-uri'
+
   class DocumentsController < ::Trough::ApplicationController
 
     load_and_authorize_resource
@@ -75,7 +77,9 @@ module Trough
         end
       end
       if @document
-        redirect_to @document.s3_url
+        web_contents  = open(@document.s3_url) do |f|
+          send_data f.read, :filename => @document.file_filename, :type => @document.file_content_type, :disposition => "inline"
+        end
       else
         redirect_to pig.not_found_url
       end
