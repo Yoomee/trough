@@ -12,7 +12,8 @@ module Trough
 
     def index
       docs = Document.include_meta.all
-      @documents = docs.order("LOWER(NULLIF(#{sort_column}, '')) #{sort_direction}")
+      @documents = docs  #.order("LOWER(NULLIF(#{sort_column}, '')) #{sort_direction}")
+      
     end
 
     def search
