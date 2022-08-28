@@ -33,8 +33,8 @@ var DocumentInfoModal = (function () {
             "<p><i><%= data.file_filename %></i></p>" +
           "</div>" +
           "<div class='col-md-6'>" +
-            "<label class='col-primary'>Filesize</label>" +
-            "<p><i><%= data.file_size %></i></p>" +
+            "<label class='col-primary'>Filesize / ID</label>" +
+            "<p><i><%= data.file_size %> / <%= data.id%></i></p>" +
           "</div>" +
         "</div>" +
         "<div class='row'>" +
