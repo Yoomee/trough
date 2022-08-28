@@ -11,7 +11,20 @@ module Trough
     helper_method :sort_column, :sort_direction
 
     def index
-      docs = Document.include_meta.all
+      if params[:sort]
+        sort =  params[:sort]
+      else
+        sort =  "created_at"
+      end
+      if params[:direction]
+        direction = params[:direction]
+      else
+        direction = 'asc'
+      end
+      docs = Document.include_meta.all.sort_by{|d| eval("d.#{sort}.to_s")}.reverse
+      if direction == "desc"
+        docs = docs.reverse
+      end
       @documents = docs  #.order("LOWER(NULLIF(#{sort_column}, '')) #{sort_direction}")
       
     end
@@ -29,11 +42,22 @@ module Trough
     end
 
     def create
-      @new_document = true
-      @document.uploader = current_user.full_name if current_user && current_user.full_name
+      if params[:document][:file].nil?
+        flash[:error] = "Error: You must chose a file to upload!"
+      elsif params[:document][:description].nil?
+        flash[:error] = "Error: You must enter a description for the a document to upload."
+      else
+        @new_document = true
+        @document.uploader = current_user.full_name if current_user && current_user.full_name
 
-      return if @document.save
-      @duplicate_document = Document.find_by(md5: @document.md5) if @document.errors[:md5]
+        if @document.save
+          flash[:notice] = "Document uploaded successfully: #{@document.slug} "
+        else
+          @duplicate_document = Document.find_by(md5: @document.md5) if @document.errors[:md5]
+          flash[:error] = "Document not uploaded! It already exists as #{@duplicate_document.slug} "
+        end
+      end
+        redirect_to documents_path
     end
 
     def destroy
@@ -51,12 +75,18 @@ module Trough
     end
 
     def replace
-      @document = Document.find_by(slug: params[:id])
-      if @document.update(document_params.merge(description: @document.get_description_or_default))
-        flash[:notice] = "#{@document.file_filename} replaced"
-      elsif @document.errors[:md5]
-        @duplicate_document = Document.find_by(md5: @document.md5)
+      if params[:document].nil?
+        flash[:error] = "Error: You must select a document to upload!"
+      else
+        @document = Document.find_by(slug: params[:id])
+        if @document.update(document_params.merge(description: @document.get_description_or_default))
+          flash[:notice] = "Success: #{@document.slug} was updated successfully with the file: #{@document.file_filename}" 
+        elsif @document.errors[:md5]
+          @duplicate_document = Document.find_by(md5: @document.md5)
+          flash[:error] = "Error: The document you tried to upload already exisits: #{@duplicate_document.slug}"
+        end
       end
+      redirect_to documents_path
     end
 
     def info
@@ -78,7 +108,9 @@ module Trough
         end
       end
       if @document
-        web_contents  = open(@document.s3_url) do |f|
+        print "INFO: Getting document from #{@document.s3_url}  "
+        web_contents  = URI.open(@document.s3_url) do |f|
+          puts ""
           send_data f.read, :filename => @document.file_filename, :type => @document.file_content_type, :disposition => "inline"
         end
       else

@@ -1,10 +1,7 @@
-=semantic_form_for @document || Trough::Document.new, url: documents_path, remote: true do |form|
+=semantic_form_for @document || Trough::Document.new, url: documents_path do |form|
   =hidden_field_tag "authenticity_token", form_authenticity_token
   =form.inputs do
-    =form.attachment_field :file, presigned: true
-    .progress
-      .progress-bar{role: "progressbar", style: "width: 0%;"}
-    =form.input :description, wrapper_html: { style: "display: #{@document && @document.errors.key?(:description) ? 'block' : 'none'}" }
-
+    =form.file_field :file, presigned: true
+    =form.input :description
   =form.actions do
-    =form.action :submit, label: 'Upload file', button_html: { class: 'btn btn-primary pull-right', disabled: true }
+    =form.action :submit, label: 'Upload file', button_html: { class: 'btn btn-primary pull-right' }

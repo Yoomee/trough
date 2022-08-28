@@ -1,5 +1,4 @@
 Trough::Engine.routes.draw do
-  mount Refile.app, at: Refile.mount_point, as: :refile_app
   scope "/#{Trough.configuration.mount_path}" do
     resources :documents, path: "/", :except => :show, constraints: { id: /.*/ } do
       collection do

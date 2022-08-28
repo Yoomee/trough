@@ -3,10 +3,9 @@
     %i.fa.fa-times
   %h4.modal-title Replace document
 .modal-body.ui-front.document-modal
-  %label.col-primary="Upload a new file to replace #{@document.file_filename}"
-  =form_for @document, url: replace_document_path(@document), html: { id: 'replace_document' }, remote: true  do |form|
-    =form.attachment_field :file, presigned: true
-    .progress
-      .progress-bar{role: "progressbar", style: "width: 0%;"}
+  %strong="Upload a new file to replace the document named:"
+  %p="#{@document.slug}"
+  =form_for @document, url: replace_document_path(@document), html: { id: 'replace_document' } do |form|
+    =form.file_field  :file, presigned: true
     .modal-footer
-      =form.submit "Replace", id: 'document_submit_action', class: 'btn btn-primary', disabled: true
+      =form.submit "Replace", id: 'document_submit_action', class: 'btn btn-primary'

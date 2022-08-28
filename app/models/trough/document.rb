@@ -7,11 +7,12 @@ module Trough
     validate :file_content_type_cant_change, on: :update
     validates :slug, :md5, uniqueness: true
 
-    # Define a refile attachment
-    attachment :file
+    # Define a Active Storage attachment
+    has_one_attached :file
+
     before_validation :set_md5
     before_validation :set_slug, on: :create
-    after_save :set_content_disposition,  :set_s3_url
+    after_save :set_content_disposition,  :set_document_legacy_fields
 
     class << self
       def blacklist
@@ -56,9 +57,9 @@ module Trough
     # TODO: remove temporary fix_for_extensions required for running from console
     def set_slug(fix_for_extensions=false)
       if Trough.configuration.show_file_extensions
-        filename = file_filename
+        filename = file.filename.to_s
       else
-        filename = file_filename.split('.')[0...-1].join('.')
+        filename = file.filename.to_s.split('.')[0...-1].join('.')
       end
       escaped_name = filename ? filename.downcase.gsub(/[^0-9a-z\-_. ]/, '').squish.gsub(' ', '-') : 'temporary'
       temp_slug = escaped_name.dup
@@ -77,27 +78,32 @@ module Trough
     end
 
     def set_md5
-      write_attribute(:md5, Digest::MD5.file(file.download).to_s)
+      write_attribute(:md5, Digest::MD5.hexdigest(file.blob.checksum).to_s)
     end
 
     def to_param
       slug.presence || id
     end
 
-    def set_s3_url
-      object = get_s3_object(file.id)
-      update_column :s3_url, object.public_url
+    # For Rails 6 upgrade to Active Storage
+    def set_document_legacy_fields
+      update_column :s3_url, file.url
+      update_column :file_id, get_random_string(62)
+      update_column :file_filename, file.filename.to_s
+      update_column :file_size, file.blob.byte_size
+      update_column :file_content_type, file.blob.content_type
     end
 
     def set_content_disposition
-      object = get_s3_object(file.id)
-      object.copy_from(
-        copy_source: [object.bucket.name, object.key].join('/'),
-        metadata_directive: 'REPLACE',
-        metadata: object.metadata,
-        content_type: file_content_type,
-        content_disposition: "inline\; filename=\"#{file_filename}\""
-      )
+    #TODO removed for Rails 6 upgrade to Active Storage
+    #  object = get_s3_object(file.id)
+    #  object.copy_from(
+    #    copy_source: [object.bucket.name, object.key].join('/'),
+    #    metadata_directive: 'REPLACE',
+    #    metadata: object.metadata,
+    #   content_type: file_content_type,
+    #    content_disposition: "inline\; filename=\"#{file_filename}\""
+    #  )
     end
 
     def get_description_or_default
@@ -126,15 +132,11 @@ module Trough
       end
     end
 
-    def get_s3_object(id)
-      client = Aws::S3::Client.new(
-      access_key_id: ENV["S3_ACCESS_KEY_ID"],
-      secret_access_key: ENV['S3_SECRET_ACCESS_KEY'],
-      region: ENV['S3_REGION']
-      )
-      resource = Aws::S3::Resource.new(client: client)
-      bucket = resource.bucket ENV['S3_BUCKET_NAME']
-      bucket.object(['store', id].join('/'))
+    def get_random_string(length=2)
+      source=("a".."f").to_a + ("0".."9").to_a
+      key=""
+      length.times{ key += source[rand(source.size)].to_s }
+      key
     end
 
   end

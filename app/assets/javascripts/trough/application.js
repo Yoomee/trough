@@ -10,6 +10,5 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require refile
 //= require ./attachments
 //= require_tree .

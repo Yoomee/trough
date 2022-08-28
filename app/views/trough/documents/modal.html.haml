@@ -5,6 +5,9 @@
 .modal-body.ui-front.document-modal
   %label.col-primary Choose an existing file
   =select_tag "document", options_for_select(@documents.collect{|doc| [doc.slug, {id: doc.id, url: document_path(doc), name: doc.file_filename}.to_json] }), class: "autocomplete-select"
+
+- # Removed for Rails 6
+-if false
   %label.col-primary Or upload a new file
   =form_for @document, url: modal_create_documents_path, id: 'new_document', remote: true  do |form|
     =form.attachment_field :file, presigned: true
