@@ -25,7 +25,7 @@ module Trough
       if direction == "desc"
         docs = docs.reverse
       end
-      @documents = docs  #.order("LOWER(NULLIF(#{sort_column}, '')) #{sort_direction}")
+      @documents = docs
       
     end
 
@@ -44,7 +44,7 @@ module Trough
     def create
       if params[:document][:file].nil?
         flash[:error] = "Error: You must chose a file to upload!"
-      elsif params[:document][:description].nil?
+      elsif params[:document][:description].empty?
         flash[:error] = "Error: You must enter a description for the a document to upload."
       else
         @new_document = true
@@ -119,7 +119,7 @@ module Trough
     end
 
     def modal
-      @documents = Document.all
+      @documents =  Document.all.sort_by{|d| d.updated_at}.reverse
       @document = Document.new
       render :layout => false
     end
