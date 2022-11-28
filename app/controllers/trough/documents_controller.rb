@@ -108,7 +108,6 @@ module Trough
         end
       end
       if @document
-        print "INFO: Getting document from #{@document.s3_url}  "
         web_contents  = URI.open(@document.s3_url) do |f|
           puts ""
           send_data f.read, :filename => @document.file_filename, :type => @document.file_content_type, :disposition => "inline"
