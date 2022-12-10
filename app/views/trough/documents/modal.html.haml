@@ -4,16 +4,17 @@
   %h4.modal-title Documents
 .modal-body.ui-front.document-modal
   %label.col-primary Choose an existing file
+
   =select_tag "document", options_for_select(@documents.collect{|doc| [doc.slug, {id: doc.id, url: document_path(doc), name: doc.file_filename}.to_json] }), class: "autocomplete-select"
 
-- # Removed for Rails 6
--if false
   %label.col-primary Or upload a new file
-  =form_for @document, url: modal_create_documents_path, id: 'new_document', remote: true  do |form|
-    =form.attachment_field :file, presigned: true
+  = form_for  @document, url: modal_create_documents_path, id: 'new_document', method: :patch, format: :js, :html => { :multipart => true }, :remote => true do |form|
+    =hidden_field_tag "authenticity_token", form_authenticity_token
+    =form.file_field :file, presigned: true
     .progress
       .progress-bar{role: "progressbar", style: "width: 0%;"}
     %label.col-primary#document_description_label{style: 'display:none'} Description (mandatory)
-    =form.text_area :description, style: 'display:none', id: "document_description_input"
+    %div{id: 'error-message'}
+    =form.text_area  :description, style: 'display:none', id: "document_description_input"
     .modal-footer
       =form.submit "Upload file", id: 'document_submit_action', class: 'btn btn-primary', disabled: true
