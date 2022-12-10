@@ -78,7 +78,9 @@ module Trough
     end
 
     def set_md5
-      write_attribute(:md5, Digest::MD5.hexdigest(file.blob.checksum).to_s)
+      if !file&.blob.nil?
+        write_attribute(:md5, Digest::MD5.hexdigest(file.blob.checksum).to_s)
+      end
     end
 
     def to_param
