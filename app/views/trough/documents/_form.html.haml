@@ -1,7 +1,5 @@
-=semantic_form_for @document || Trough::Document.new, url: documents_path do |form|
+=form_for @document || Trough::Document.new, url: documents_path do |form|
   =hidden_field_tag "authenticity_token", form_authenticity_token
-  =form.inputs do
-    =form.file_field :file, presigned: true
-    =form.input :description
-  =form.actions do
-    =form.action :submit, label: 'Upload file', button_html: { class: 'btn btn-primary pull-right' }
+  =form.file_field :file, presigned: true
+  =form.text_area  :description
+  =form.submit :submit, label: 'Upload file!', button_html: { class: 'btn btn-primary pull-right' }
