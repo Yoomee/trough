@@ -55,7 +55,7 @@ var attachments = (function () {
 
         var formData = new FormData;
         formData.append('document[file]', file);
-        formData.append('document[description]', file);
+        formData.append('document[description]', file_description);
 
         ajax.upload.addEventListener("progress", myProgressHandler, false);
         ajax.addEventListener('load', myOnLoadHandler, false);
