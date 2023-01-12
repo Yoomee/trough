@@ -33,7 +33,6 @@ var attachments = (function () {
    $(document).ready(function() {
 
       $(document).on("change", "input#document_file", function(event) {
-             console.log("CHANGED");
              $("#document_description_label").slideDown();
              $("#document_description_input").slideDown();
              $('#document_submit_action').prop('disabled', false);
@@ -47,8 +46,33 @@ var attachments = (function () {
          return false;
        } else {
         $('#error-message').empty();
-        $('.progress-bar').css("width", '80%');
+        $('.progress-bar').css("width", '2%');
         $('.progress-bar').show();
+
+        var file = document.getElementById('document_file').files[0];
+        var file_description = document.getElementById('document_description_input').value;
+        var ajax = new XMLHttpRequest;
+
+        var formData = new FormData;
+        formData.append('document[file]', file);
+        formData.append('document[description]', file);
+
+        ajax.upload.addEventListener("progress", myProgressHandler, false);
+        ajax.addEventListener('load', myOnLoadHandler, false);
+        ajax.open('POST', '/documents/modal_create', true);
+        ajax.send(formData);  
+
+        function myProgressHandler(event) {
+          //your code to track upload progress
+          var p = Math.floor(event.loaded/event.total*90);
+          $('.progress-bar').css("width", p+'%');
+        }        
+        
+        function myOnLoadHandler(event) {
+          // your code on finished upload
+          eval(event.target.responseText);
+        };
+
        }
      });
    });

@@ -3,6 +3,8 @@ module Trough
 
   class DocumentsController < ::Trough::ApplicationController
 
+    skip_before_action :verify_authenticity_token, :only => [:modal_create]
+
     load_and_authorize_resource
     skip_load_resource only: [:show, :destroy, :info, :replace]
 

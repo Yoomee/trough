@@ -4,7 +4,7 @@ Trough::Engine.routes.draw do
       collection do
         get 'modal'
         get 'replace_modal'
-        patch 'modal_create'
+        post 'modal_create'
         get 'search'
         get 'autocomplete'
       end
