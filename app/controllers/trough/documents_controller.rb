@@ -110,9 +110,15 @@ module Trough
         end
       end
       if @document
-        web_contents  = URI.open(@document.s3_url) do |f|
-          puts ""
-          send_data f.read, :filename => @document.file_filename, :type => @document.file_content_type, :disposition => "inline"
+        # Generate the S3 URL, which will be presigned if the file is private
+        s3_url = @document.file.url
+        puts "DEBUG: After attempting to download S3 URL #{s3_url}"
+      
+        begin
+          # Read the file data outside the `send_data` method
+          file_data = URI.open(s3_url).read
+          # Send the data as an inline attachment
+          send_data file_data, filename: @document.file_filename, type: @document.file_content_type, disposition: "inline"
         end
       else
         redirect_to pig.not_found_url
