@@ -111,7 +111,7 @@ module Trough
       end
       if @document
         # Generate the S3 URL, which will be presigned if the file is private
-        s3_url = @document.file.url
+        s3_url = @document.s3_url
         puts "DEBUG: After attempting to download S3 URL #{s3_url}"
       
         begin
