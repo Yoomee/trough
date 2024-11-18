@@ -28,7 +28,7 @@ module Trough
                (SELECT SUM(trough_document_usages.download_count) FROM trough_document_usages WHERE (trough_document_usages.trough_document_id = trough_documents.id)) AS downloads_count")
       end
 
-      def search(term)
+      def trough_search(term)
         if term.present?
           where('slug iLIKE :term OR description iLIKE :term OR uploader iLIKE :term', term: "%#{term}%")
         else

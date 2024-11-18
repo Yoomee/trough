@@ -32,12 +32,12 @@ module Trough
     end
 
     def search
-      @documents = Document.include_meta.search(params[:term]).order(:slug)
+      @documents = Document.include_meta.trough_search(params[:term]).order(:slug)
       render :index
     end
 
     def autocomplete
-      render json: Document.search(params[:term]).pluck(:slug).to_json
+      render json: Document.trough_search(params[:term]).pluck(:slug).to_json
     end
 
     def new
